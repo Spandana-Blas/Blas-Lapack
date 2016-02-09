@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title> SignalR-enabled BLAS1 Web Service </title>
-   </head>
+    <title> SignalR-enabled BLAS Web Service </title>
+
+</head>
 <body>
     <!--User interface -->
-    <p> SignalR-enabled BLAS1 Web Service </p>
-    <p>Matrix #1 <input type="text" id="mat1" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[2, 3], [1, 1]], &quot;size&quot;: [2, 2]}" /> </p>
-    <p>Matrix #2 <input type="text" id="mat2" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[1], [3]], &quot;size&quot;: [2, 1]}" /></p>
-    <p>Matrix #3 <input type="text" id="mat1" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[2, 3], [1, 1]], &quot;size&quot;: [2, 2]}" /> </p>
-    <p>Matrix #4 <input type="text" id="mat2" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[1], [3]], &quot;size&quot;: [2, 1]}" /></p>
-    <p>Matrix #5 <input type="text" id="mat1" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[2, 3], [1, 1]], &quot;size&quot;: [2, 2]}" /> </p>
-    <p>Matrix #6 <input type="text" id="mat2" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[1], [3]], &quot;size&quot;: [2, 1]}" /></p>
-
-    <input type="button" id="send" value="Find the dot product" />
-    <input type="button" id="matvec" value="Matrix- Vector Multiplication" />
+    <p> SignalR-enabled BLAS Web Service </p>
+    <p>Matrix #1 <input type="text" id="mat1" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[1, 0]], &quot;size&quot;: [1, 2]}" /> </p>
+    <p>Matrix #2 <input type="text" id="mat2" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[16], [12]], &quot;size&quot;: [2, 2]}" /></p>
+    <input type="button" id="send" value="Row-Column Vector Multiplication" />
     <p id="Product1"></p>
+    <p>Matrix #3 <input type="text" id="mat3" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[1, 0], [0, 1]], &quot;size&quot;: [2, 2]}" /> </p>
+    <p>Matrix #4 <input type="text" id="mat4" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[16], [12]], &quot;size&quot;: [2, 1]}" /></p>
+    <input type="button" id="matvec" value="Matrix- Vector Multiplication" />
     <p id="Product2"></p>
+
+    <p>Matrix #5 <input type="text" id="mat5" size="150" value="{&quot;matrixType&quot;:&quot;RowVector&quot;, &quot;data&quot;: [[1, 0], [0, 1]], &quot;size&quot;: [2, 2]}" /> </p>
+    <p>Matrix #6 <input type="text" id="mat6" size="150" value="{&quot;matrixType&quot;:&quot;ColumnVector&quot;, &quot;data&quot;: [[16,1], [12,1]], &quot;size&quot;: [2, 2]}" /></p>
+    <input type="button" id="matmat" value="Matrix- Matrix Multiplication" />
     <p id="Product3"></p>
 
     <!--Script references -->
