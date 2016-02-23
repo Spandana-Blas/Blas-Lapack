@@ -27,6 +27,12 @@ $(function () {
             // Call the matrix multiplication method on the hub.
             blas.server.blas3(mat5JSON, mat6JSON);
         });
+        $('#lufact').click(function () {
+            var mat7JSON = $('#mat7').val();
+            var mat8JSON = $('#mat8').val();
+            // Call the matrix multiplication method on the hub.
+            blas.server.blas4(mat7JSON, mat8JSON);
+        });
     });
     // Create a function that the hub can call to display the product.
     blas.client.displayBlas1 = function (product) {
@@ -63,4 +69,18 @@ $(function () {
         }
         document.getElementById("Product3").innerHTML = ' Resulting product of Matrix - Matrix Multiplication is: [' + output + '] ';
     };
+    blas.client.displayBlas4 = function (product) {
+        //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
+        var productObj = JSON.parse(product);
+        var len = productObj.data.length;
+        var output = '';
+        for (i = 0; i < len; i++) {
+            output += '[' + productObj.data[i] + ']';
+            if (i != len - 1) {
+                output += ',';
+            }
+        }
+        document.getElementById("Product4").innerHTML = ' Resulting solution is : [' + productObj.data[0] + '] ';
+    };
+
 });
