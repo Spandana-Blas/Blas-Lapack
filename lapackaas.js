@@ -80,7 +80,7 @@ $(function () {
                 output += ',';
             }
         }
-        document.getElementById("Product4").innerHTML = ' Resulting solution is : [' + productObj.data[0] + '] ';
+        document.getElementById("Product4").innerHTML = ' Resulting solution is : [' + output + '] ';
     };
 
 });
