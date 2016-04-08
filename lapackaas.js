@@ -33,6 +33,12 @@ $(function () {
             // Call the matrix multiplication method on the hub.
             blas.server.blas4(mat7JSON, mat8JSON);
         });
+        $('#qrfact').click(function () {
+            var mat9JSON = $('#mat9').val();
+            var mat10JSON = $('#mat10').val();
+            // Call the matrix multiplication method on the hub.
+            blas.server.blas5(mat9JSON, mat10JSON);
+        });
     });
     // Create a function that the hub can call to display the product.
     blas.client.displayBlas1 = function (product) {
@@ -54,7 +60,7 @@ $(function () {
                 output += ',';
             }
         }
-        document.getElementById("Product2").innerHTML = ' Resulting Vectror of Matrix vector Multiplication is: [' + output + '] ';
+        document.getElementById("Product2").innerHTML = ' Resulting Vectror of Matrix vector Multiplication is: [' + output + '] '+ productObj +',' + len;
     };
     blas.client.displayBlas3 = function (product) {
         //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
@@ -72,6 +78,19 @@ $(function () {
     blas.client.displayBlas4 = function (product) {
         //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
         var productObj = JSON.parse(product);
+        var len = productObj.data[0];
+        var output = '';
+        for (i = 0; i < len; i++) {
+            output += '[' + productObj.data[i] + ']';
+            if (i != len - 1) {
+                output += ',';
+            }
+        }
+        document.getElementById("Product4").innerHTML = ' Resulting solution for LU factorization is : [' + output + '] ';
+    };
+    blas.client.displayBlas5 = function (product) {
+        //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
+        var productObj = JSON.parse(product);
         var len = productObj.data.length;
         var output = '';
         for (i = 0; i < len; i++) {
@@ -80,7 +99,7 @@ $(function () {
                 output += ',';
             }
         }
-        document.getElementById("Product4").innerHTML = ' Resulting solution is : [' + output + '] ';
+        document.getElementById("Product5").innerHTML = ' Resulting solution is : [' + output + '] ';
     };
 
 });
