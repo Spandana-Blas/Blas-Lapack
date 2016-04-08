@@ -205,11 +205,9 @@ namespace Demo_Lapack
                     Y.data[a, 0] = Math.Round(Y.data[a, 0], 2);
                 }
             }
-            int h = 0;
             for (int a = P - 1; a >= 0; a--)
             {
                 int b;
-                h = h + 1;
                 X.data[a, 0] = Y.data[a, 0];
                 for (b = a + 1; b < P; b++)
                 {
@@ -218,9 +216,219 @@ namespace Demo_Lapack
                 }
                 X.data[a, 0] /= U.data[a, a];
                 X.data[a, 0] = Math.Round(X.data[a, 0], 2);
-                String strX = X.data[a, 0].ToString();
+                
                 //toPass += strX;
-                if (h != 2)
+            }
+
+            int h = 0;
+
+            for (int a = 0; a < Q; a++)
+            {
+                h = h + 1;
+                                String strX = X.data[a, 0].ToString();
+                if (h != Q)
+                {
+                    toPass += '[' + strX + ']' + ',';
+                }
+                else
+                {
+                    toPass += '[' + strX + ']';
+                }
+            
+
+            }
+
+            //toPass1 = "[" + toPass +"]";
+            //String strH = "{\"data\": ["+ toPass+"]}";
+            String strH = "{\"data\": ["+toPass+"]}";
+            Clients.All.DisplayBlas4(strH);
+
+            return L;
+
+
+        }
+
+        public Matrix Blas5(String mat1, String mat2)
+        {
+            Matrix U = new Matrix();
+            Matrix Q = new Matrix();
+            Matrix R = new Matrix();
+            Matrix Qt = new Matrix();
+            Matrix QtR = new Matrix();
+            Matrix X = new Matrix();
+            Matrix Lower = new Matrix();
+            Matrix Upper = new Matrix();
+            Matrix X2 = new Matrix();
+            Matrix Y2 = new Matrix();
+
+            String toPass1 = null;
+
+            //String toPass1 = null;
+            
+            var A = JsonConvert.DeserializeObject<Matrix>(mat1);
+            var B = JsonConvert.DeserializeObject<Matrix>(mat2);
+            int m = A.size[0];
+            int n = A.size[1];
+
+            
+            U.data = new double[m, n];
+            Q.data = new double[m, n];
+            Qt.data = new double[n, m];
+            R.data = new double[n, n];
+            QtR.data = new double[n, 1];
+            X.data = new double[n, 1];
+            Lower.data = new double[10, 10];
+            Upper.data = new double[10, 10];
+            X2.data = new double[10, 10];
+            Y2.data = new double[10, 10];
+            String toPass = null;
+            //String toPassY = null;
+            
+            double norm;
+            double[] abc;
+            for (int j = 0; j < n; j++)
+            {
+                Matrix projection = new Matrix();
+                projection.data = new double[j, 1];
+                abc = new double[j];
+
+                for (int i = 0; i < m; i++)
+                {
+                    U.data[i, j] = A.data[i, j];
+                    for (int p = 0; p < j; p++)
+                    {
+                        abc[p] += A.data[i, j] * Q.data[i, p];
+                    }
+                      
+                }
+                norm = 0;
+                for (int i = 0; i < m; i++)
+                {
+                    for (int p = 0; p < j; p++)
+                    {
+                        U.data[i, j] = U.data[i, j] - (abc[p] * Q.data[i, p]);
+                    }
+                    norm += Math.Pow(U.data[i, j], 2);
+                }
+                norm = Math.Sqrt(norm);
+                for (int i = 0; i < m; i++)
+                {
+                    Q.data[i, j] = U.data[i, j] / norm;
+                }
+                
+            }
+
+            for (int i =0; i< n; i++)
+            {
+                for (int j =i; j< n; j++)
+                {
+                    for (int p =0; p< m; p++)
+                    {
+                        R.data[i, j] += A.data[p, j] * Q.data[p, i];
+
+                    }
+                }
+            }
+            // Rx = Transpose(Q) * b should be solved now 
+
+            // First find transpose of Q
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    
+                    Qt.data[j, i] = Q.data[ i, j];
+                }
+            }
+
+            // Now multiply Transpose of Q i.e. Qt and b
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < B.size[1]; j++)
+                {
+                    double C = 0;
+                    for (int k = 0; k < B.size[0]; k++)
+                    {
+                        C = C + (Qt.data[i, k] * B.data[k, j]);
+                    }
+                    QtR.data[i, j] = C;
+                    //toPass is the string with row vectors
+
+                }
+            }
+
+            // Now solve the System R X = QtR
+
+            int u = n;
+            int v = n;
+            int w = n;
+
+            int o = B.size[1];
+
+
+            for (int a = 0; a < u; a++)
+            {
+                for (int b = 0; b < u; b++)
+                {
+                    if (a <= b)
+                    {
+                        Upper.data[a, b] = R.data[a, b];
+                        for (int c = 0; c <= a - 1; c++)
+                        {
+                            Upper.data[a, b] -= (Lower.data[a, c] * Upper.data[c, b]);
+                            Upper.data[a, b] = Math.Round(Upper.data[a, b], 2);
+                        }
+                        if (a == b)
+                            Lower.data[a, b] = 1;
+                        else
+                            Lower.data[a, b] = 0;
+
+                    }
+                    else
+                    {
+                        Lower.data[a, b] = R.data[a, b];
+                        for (int c = 0; c <= b - 1; c++)
+                        {
+                            Lower.data[a, b] -= (Lower.data[a, c] * Upper.data[c, b]);
+                            Lower.data[a, b] = Math.Round(Lower.data[a, b], 2);
+                        }
+
+                        Lower.data[a, b] /= Upper.data[b, b];
+                        Lower.data[a, b] = Math.Round(Lower.data[a, b], 2);
+                        Upper.data[a, b] = 0;
+                    }
+                }
+            }
+            //Now we solve Y where LY = B
+            for (int a = 0; a < u; a++)
+            {
+                Y2.data[a, 0] = QtR.data[a, 0];
+                for (int b = 0; b < a; b++)
+                {
+                    Y2.data[a, 0] = Y2.data[a, 0] - (Lower.data[a, b] * Y2.data[b, 0]);
+                    Y2.data[a, 0] = Math.Round(Y2.data[a, 0], 2);
+                }
+            }
+            for (int a = u - 1; a >= 0; a--)
+            {
+                int b;
+                X2.data[a, 0] = Y2.data[a, 0];
+                for (b = a + 1; b < u; b++)
+                {
+                    X2.data[a, 0] -= (Upper.data[a, b] * X2.data[b, 0]);
+                    X2.data[a, 0] = Math.Round(X2.data[a, 0], 2);
+                }
+                X2.data[a, 0] /= Upper.data[a, a];
+                X2.data[a, 0] = Math.Round(X2.data[a, 0], 2);
+                String strX = X2.data[a, 0].ToString();
+                //toPass += strX;int h = 0;
+            }
+            int h = 0;
+            for (int a = 0; a < n; a++)
+            {
+                h = h + 1;
+                String strX = X2.data[a, 0].ToString();
+                if (h != n)
                 {
                     toPass += '[' + strX + ']' + ',';
                 }
@@ -229,14 +437,14 @@ namespace Demo_Lapack
                     toPass += '[' + strX + ']';
                 }
 
+
             }
 
-            toPass1 = "[" + toPass +"]";
-            //String strH = "{\"data\": ["+ toPass+"]}";
-            String strH = "{\"data\": ["+toPass1+"]}";
-            Clients.All.DisplayBlas4(strH);
+                //toPass1 = "[" + toPass +"]";
+                String strH = "{\"data\": [" + toPass + "]}";
+                Clients.All.DisplayBlas5(strH);
 
-            return L;
+            return Q;
 
 
         }
