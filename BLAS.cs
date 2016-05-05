@@ -254,7 +254,7 @@ namespace Demo_Lapack
             Matrix Q = new Matrix();
             Matrix R = new Matrix();
             Matrix Qt = new Matrix();
-            Matrix QtR = new Matrix();
+            Matrix QtB = new Matrix();
             Matrix X = new Matrix();
             Matrix Lower = new Matrix();
             Matrix Upper = new Matrix();
@@ -275,7 +275,7 @@ namespace Demo_Lapack
             Q.data = new double[m, n];
             Qt.data = new double[n, m];
             R.data = new double[n, n];
-            QtR.data = new double[n, 1];
+            QtB.data = new double[n, 1];
             X.data = new double[n, 1];
             Lower.data = new double[10, 10];
             Upper.data = new double[10, 10];
@@ -299,7 +299,7 @@ namespace Demo_Lapack
                     {
                         abc[p] += A.data[i, j] * Q.data[i, p];
                     }
-                      
+
                 }
                 norm = 0;
                 for (int i = 0; i < m; i++)
@@ -315,20 +315,24 @@ namespace Demo_Lapack
                 {
                     Q.data[i, j] = U.data[i, j] / norm;
                 }
-                
+
             }
 
-            for (int i =0; i< n; i++)
+            for (int i = 0; i < n; i++)
             {
-                for (int j =i; j< n; j++)
+                for (int j = i; j < n; j++)
                 {
-                    for (int p =0; p< m; p++)
+                    for (int p = 0; p < m; p++)
                     {
                         R.data[i, j] += A.data[p, j] * Q.data[p, i];
 
                     }
                 }
             }
+
+
+                
+             
             // Rx = Transpose(Q) * b should be solved now 
 
             // First find transpose of Q
@@ -351,13 +355,13 @@ namespace Demo_Lapack
                     {
                         C = C + (Qt.data[i, k] * B.data[k, j]);
                     }
-                    QtR.data[i, j] = C;
+                    QtB.data[i, j] = C;
                     //toPass is the string with row vectors
 
                 }
             }
 
-            // Now solve the System R X = QtR
+            // Now solve the System R X = QtB
 
             int u = n;
             int v = n;
@@ -402,7 +406,7 @@ namespace Demo_Lapack
             //Now we solve Y where LY = B
             for (int a = 0; a < u; a++)
             {
-                Y2.data[a, 0] = QtR.data[a, 0];
+                Y2.data[a, 0] = QtB.data[a, 0];
                 for (int b = 0; b < a; b++)
                 {
                     Y2.data[a, 0] = Y2.data[a, 0] - (Lower.data[a, b] * Y2.data[b, 0]);
@@ -447,6 +451,131 @@ namespace Demo_Lapack
             return Q;
 
 
+        }
+
+        public Matrix Blas6(String mat1)
+        {
+
+            String toPass1 = null;
+
+            //String toPass1 = null;
+
+            var A = JsonConvert.DeserializeObject<Matrix>(mat1);
+            //var B = JsonConvert.DeserializeObject<Matrix>(mat2);
+            int m = A.size[0];
+            int n = A.size[1];
+
+
+            String toPass = null;
+            //String toPassY = null;
+            String strH = null;
+
+
+            double norm;
+            double C = 0;
+            double[] abc;
+
+            for (int t = 0; t < 100; t++)
+            {
+                double[,] R1 = new double[m, n];
+                double[,] Q1 = new double[m, n];
+                Matrix U = new Matrix();
+                U.data = new double[m, n];
+                strH = "";
+
+                for (int j = 0; j < n; j++)
+                {
+                    Matrix projection = new Matrix();
+                    projection.data = new double[j, 1];
+                    abc = new double[j];
+
+                    for (int i = 0; i < m; i++)
+                    {
+                        U.data[i, j] = A.data[i, j];
+                        for (int p = 0; p < j; p++)
+                        {
+                            abc[p] += A.data[i, j] * Q1[i, p];
+                        }
+
+                    }
+                    norm = 0;
+                    for (int i = 0; i < m; i++)
+                    {
+                        for (int p = 0; p < j; p++)
+                        {
+                            U.data[i, j] = U.data[i, j] - (abc[p] * Q1[i, p]);
+                        }
+                        norm += Math.Pow(U.data[i, j], 2);
+                    }
+                    norm = Math.Sqrt(norm);
+                    for (int i = 0; i < m; i++)
+                    {
+                        Q1[i, j] = U.data[i, j] / norm;
+                        //Q1[i, j] = Math.Round(Q1[i, j], 2);
+                    }
+
+                }
+
+                for (int i = 0; i < n; i++)
+                {
+                    for (int j = i; j < n; j++)
+                    {
+                        for (int p = 0; p < m; p++)
+                        {
+                            R1[i, j] += A.data[p, j] * Q1[p, i];
+                            //R1[i, j] = Math.Round(R1[i, j], 2);
+
+                        }
+                    }
+                }
+
+                int P = R1.GetLength(0);
+                int Q = R1.GetLength(1);
+                int R = Q1.GetLength(0);
+                int S = Q1.GetLength(1);
+                toPass1 = "";
+
+                //Recompute A = R*Q
+                for (int i = 0; i < P; i++)
+                {
+                    toPass = "";
+                    for (int j = 0; j < S; j++)
+                    {
+                        C = 0;
+                        for (int k = 0; k < R; k++)
+                        {
+                            C = C + (R1[i, k] * Q1[k, j]);
+                            //C = Math.Round(C, 2);
+                        }
+
+                        A.data[i, j] = C;
+                        if (i == j)
+                        {
+                            String strA = A.data[i, j].ToString();
+                            toPass += strA;
+
+                        }
+                        
+                        //toPass is the string with row vectors
+                        
+                        
+                        
+                    }
+                    
+                    toPass1 += '[' + toPass + ']';
+                    if (i != (Q - 1))
+                    {
+                        toPass1 += ',';
+                    }
+                
+
+                }
+                strH = "{\"data\": [" + toPass1 + "]}";
+            }
+            
+            Clients.All.DisplayBlas6(strH);
+
+            return A;
         }
         public class Matrix
         {
