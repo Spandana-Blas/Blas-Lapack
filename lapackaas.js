@@ -39,6 +39,13 @@ $(function () {
             // Call the matrix multiplication method on the hub.
             blas.server.blas5(mat9JSON, mat10JSON);
         });
+        $('#eigqr').click(function () {
+            var mat11JSON = $('#mat11').val();
+            //var mat12JSON = $('#mat12').val();
+            // Call the matrix multiplication method on the hub.
+            //blas.server.blas6(mat11JSON, mat12JSON);
+            blas.server.blas6(mat11JSON);
+        });
     });
     // Create a function that the hub can call to display the product.
     blas.client.displayBlas1 = function (product) {
@@ -58,9 +65,9 @@ $(function () {
             if (i != len -1)
             {
                 output += ',';
-            }
+            } 
         }
-        document.getElementById("Product2").innerHTML = ' Resulting Vectror of Matrix vector Multiplication is: [' + output + '] '+ productObj +',' + len;
+        document.getElementById("Product2").innerHTML = ' Resulting Vectror of Matrix vector Multiplication is: [' + output + '] ';
     };
     blas.client.displayBlas3 = function (product) {
         //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
@@ -100,6 +107,19 @@ $(function () {
             }
         }
         document.getElementById("Product5").innerHTML = ' Resulting solution is : [' + output + '] ';
+    };
+    blas.client.displayBlas6 = function (product) {
+        //Parse JSON using JSON.parse  http://www.w3schools.com/json/json_eval.asp
+        var productObj = JSON.parse(product);
+        var len = productObj.data.length;
+        var output = '';
+        for (i = 0; i < len; i++) {
+            output += productObj.data[i];
+            if (i != len - 1) {
+                output += ',   ';
+            }
+        }
+        document.getElementById("Product6").innerHTML = ' Eigen values for the given matrix are : ' + output ;
     };
 
 });
